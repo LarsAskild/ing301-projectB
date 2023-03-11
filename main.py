@@ -15,9 +15,58 @@ def load_demo_house_devices_map():
     return result
 
 def load_demo_house(persistence: SmartHousePersistence) -> SmartHouse:
-    result = SmartHouse()
-    # TODO read rooms, devices and their locations from the database
-    return result
+    house = SmartHouse()
+    rooms = []
+    devices = []
+    
+    persistence.cursor.execute("SELECT * FROM  rooms;")
+    rooms_str = persistence.cursor.fetchall()
+    persistence.cursor.execute("SELECT * FROM  devices;")
+    devices_str = persistence.cursor.fetchall()
+
+    #Check for number of floors
+    FloorCount = 0
+    for room_str in rooms_str:
+        if(room_str[1] > FloorCount):
+            FloorCount = room_str[1]
+
+    #Create floors
+    for i in range(FloorCount):
+        house.create_floor()
+
+    #Create rooms
+    for room_str in rooms_str:
+       rooms.append(house.create_room(room_str[0], room_str[1], room_str[2], room_str[3]))
+   
+    #Register all devices in house and in correct rooms
+    for room in rooms:
+        for device_str in devices_str:
+            if(room.number == device_str[1]):
+                match device_str[2]:
+                    case "Smart Lys":
+                        house.register_device(LightBulb(device_str[5], device_str[3], device_str[2], device_str[4]), room)
+                    case "Fuktighetssensor":
+                        house.register_device(HumiditySensor(device_str[5], device_str[3], device_str[2], device_str[4]), room)
+                    case "Billader":
+                        house.register_device(SmartCharger(device_str[5], device_str[3], device_str[2], device_str[4]), room)
+                    case "Paneloven":
+                        house.register_device(HeatOven(device_str[5], device_str[3], device_str[2], device_str[4]), room)
+                    case "Temperatursensor":
+                        house.register_device(TemperatureSensor(device_str[5], device_str[3], device_str[2], device_str[4]), room)
+                    case "Strømmåler":
+                        house.register_device(SmartMeter(device_str[5], device_str[3], device_str[2], device_str[4]),room)
+                    case "Smart Stikkontakt":
+                        house.register_device(SmartOutlet(device_str[5], device_str[3], device_str[2], device_str[4]),room)
+                    case "Varmepumpe":
+                        house.register_device(HeatPump(device_str[5], device_str[3], device_str[2], device_str[4]), room)
+                    case "Luftkvalitetssensor":
+                        house.register_device(AirQualitySensor(device_str[5], device_str[3], device_str[2], device_str[4]), room)
+                    case "Luftavfukter":
+                       house.register_device(Dehumidifier(device_str[5], device_str[3], device_str[2], device_str[4]), room)
+                    case "Gulvvarmepanel":
+                        house.register_device(FloorHeatingPanel(device_str[5], device_str[3], device_str[2], device_str[4]), room)
+   
+    return house
 
 def build_demo_house() -> SmartHouse:
     house = SmartHouse()
@@ -217,5 +266,6 @@ def main(smart_house: SmartHouse):
 
 
 if __name__ == '__main__':
-    house = build_demo_house()
+    Persistence = SmartHousePersistence("db.sqlite")
+    house = load_demo_house(Persistence)
     main(house)
