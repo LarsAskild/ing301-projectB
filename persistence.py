@@ -47,6 +47,10 @@ class SmartHouseAnalytics:
         return NotImplemented()
 
     def get_coldest_room(self) -> Room:
+        
+        self.persistence.cursor.execute("SELECT device,VALUE FROM measurements JOIN devices d ON device = id where id in (8,12,28);")
+        TempSensorValues = self.persistence.cursor.fetchall()
+        
         """
         Finds the room, which has the lowest temperature on average.
         """
