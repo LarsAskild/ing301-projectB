@@ -4,7 +4,8 @@ from typing import List, Optional
 
 class Room:
 
-    def __init__(self, area: float, name: str = None):
+    def __init__(self, number: int, area: float, name: str = None):
+        self.number = number
         self.area = area
         self.name = name
         self.devices = []
@@ -124,11 +125,11 @@ class SmartHouse:
         self.floors.append(f)
         return f
 
-    def create_room(self, floor_no: int, area: float, name: str = None) -> Room:
+    def create_room(self, number: int, floor_no: int, area: float, name: str = None) -> Room:
         if not floor_no <= len(self.floors) or floor_no <= 0:  # We do not have basements right now
             raise LookupError(f"Floor wit no {floor_no} does not exist!")
         f = self.floors[floor_no - 1]
-        r = Room(area, name)
+        r = Room(number, area, name)
         f.rooms.append(r)
         return r
 

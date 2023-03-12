@@ -279,7 +279,7 @@ class LightBulb(SimpleOnOffActuator):
                  producer: str = None,
                  product_type: str = None,
                  nickname: str = None):
-        super().__init__(serial_no, producer=producer, product_type=product_type, nickname=nickname)
+        super().__init__(serial_no, producer, product_type, nickname)
 
     def get_type_name(self):
         return "Smart Lys"
